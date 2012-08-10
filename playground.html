@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+    <head>
+        <!--link href="minesweeper.css" type="text/css" rel="Stylesheet"/-->
+        <script src="playground.js"></script>
+        
+    </head>
+    <body onload="NewGame()">
+        <p>Click to expose, right-click to flag</p>
+        <button type="button" onclick="NewGame()">Start New Game</button>
+        <button type="button" onclick="MoveCreatures()">Move Creatures!</button>
+        <button type="button" onclick="StopCreatures()">Stop Creatures</button>
+        <br/>
+        <canvas id="mycanvas" width =400px height=400px></canvas>
+        
+        <p>
+            <label for="board_width">Board Width:</label>
+            <input type="text" id="num_tiles" onchange="NewGame()" value="200"/>
+        </p>
+
+        <div id="slider_tiles"></div>
+        
+        <p>
+            <label for="num_creatures">Creatures:</label>
+            <input type="text" id="num_creatures" onchange="NewGame()" value="10"/>
+        </p>
+        
+        <div id="slider_mines"></div>
+        <p id="result"></p>
+    </body>
+</html>
