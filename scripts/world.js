@@ -76,11 +76,7 @@ function NewGame() {
     canvas.height = width;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    myBoard = new Board([width,height], nCreatures, creatureSpeed, creatureWidth);
-    var obj = document.getElementById("result");
-    obj.textContent = "";
-
-  
+    myBoard = new Board([width,height], nCreatures, creatureSpeed, creatureWidth);  
     myBoard.draw();
 }
 
@@ -88,8 +84,8 @@ var intervalID;
 var isRunning = false;
 function MoveCreatures() {
     if (!isRunning) {
-        intervalID = setInterval("myBoard.move(); myBoard.draw();", 50);
         isRunning = true;
+        intervalID = setInterval("myBoard.move(); myBoard.draw();", 50);
     }
 }
 
