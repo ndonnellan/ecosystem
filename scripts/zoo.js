@@ -10,8 +10,27 @@
 //
 //	Each creature must be initialized with a position X and Y
 
+function wallApproach(creature, wallPoint) {
+    // If there is any intersection within the maximum distance, only travel
+    // as far as the intersection (but don't go to it!)
+    var almostThere = addVector(creature.pos,
+        multiplyVector(0.9, subtractVector(wallPoint,creature.pos)));
+
+    creature.pos = almostThere;
+    creature.speedLast = creature.speedLast * 0.9;
+}
+
+function wallStop(creature, wallPoint) {
+    //Alternative to wallApproach that retreats to the last point 
+    //(probably not good for large speeds)
+    creature.pos = creature.posLast.slice(0);
+    creature.speedLast = 0;
+    creature.heading = (creature.heading + Math.PI) % (Math.PI * 2);
+}
+
 function Creature(posX, posY) {
     this.pos = [posX, posY];
+    this.posLast = this.pos.slice(0);
 
     this.heading = 2.0 * Math.PI * Math.random();
     this.speed = 2;
@@ -27,13 +46,15 @@ function Creature(posX, posY) {
         // is moving, the bigger the cone of available headings. No penalty for
         // acceleration.
     	return currentHeading + 
-    		(Math.random() - 0.5) * (maxHeadingCone - maxConeShrink * this.speedLast/this.speed);
+    		(Math.random() - 0.5) *
+             (maxHeadingCone - maxConeShrink * this.speedLast/this.speed);
     }
     this.randomMove = function(polygonCoords) {
         // Pick a random position to move to given the limits
         // specified. No wrapping around the limits. 
         var randomHeading = this.getRandomHeading(this.heading);
         
+
         // Sometimes they'll just turn around
         //if (Math.random() < 0.10)
         //    randomHeading += Math.PI;
@@ -52,21 +73,27 @@ function Creature(posX, posY) {
         var closest = closestIntersection(polygonCoords, this.pos, randomVector, 1);
 
         if (closest) {
-        	// If there is any intersection within the maximum distance, only travel
-        	// as far as the intersection (but don't go to it!)
-        	var almostThere = addVector(this.pos,
-        		multiplyVector(0.9, subtractVector(closest,this.pos)));
+        	if (this.speed > 20) {
+                wallApproach(this, closest);
+            } else {
+                wallStop(this, closest);
+            }
 
-        	this.pos = almostThere;
-        	this.speedLast = this.speedLast * 0.9;
         } else {
         	this.pos = addVector(this.pos, randomVector);
         	this.speedLast = this.speed;
         }
 
+        if (!this.pos){
+            throw "Invalid position!";
+        }
+
 
     }
 
-    this.move = this.randomMove;
+    this.move = function(polygonCoords) {
+        this.posLast = this.pos.slice(0);
+        this.randomMove(polygonCoords);
+    }
 
 }

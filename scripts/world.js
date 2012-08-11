@@ -35,7 +35,7 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
         for (var i = 0; i < this.creatures.length; i++) {
             pos = this.creatures[i].getPos();
             w = this.creatures[i].width;
-            drawRect(pos[0],pos[1],w,w,'#FF0000');
+            drawRect(pos[0] - w/2, pos[1] - w/2, w, w,'#FF0000');
         }
     }
     
@@ -95,5 +95,14 @@ function StopCreatures() {
 }
 
 function UpdateCreatureSpeed(val) {
-    myBoard.updateCreatureSpeed(parseFloat(val));
+    var valNum = parseFloat(val);
+    if (valNum > myBoard.dims[0] * 0.3) {
+        // Limit the creature speed to 30% of the board width
+        valNum = myBoard.dims[0] * 0.3;
+        var err = document.getElementById("error_label");
+        err.innerText = "Cannot set speed above 30% of board width";
+
+    }
+
+    myBoard.updateCreatureSpeed(valNum);
 }

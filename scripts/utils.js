@@ -161,7 +161,8 @@ function closestIntersection(polygonCoords, pointCoords, directionVector, maxDis
 	var next = [];
 	while (intersections) {
 		next = intersections.pop();
-		if (mag(subtractVector(pointCoords, next)) > mag(subtractVector(pointCoords, closest)))
+		if (mag(subtractVector(pointCoords, next)) 
+			> mag(subtractVector(pointCoords, closest)))
 			closest = next;
 	}
 
