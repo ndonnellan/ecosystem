@@ -96,12 +96,16 @@ function StopCreatures() {
 
 function UpdateCreatureSpeed(val) {
     var valNum = parseFloat(val);
+    var err = document.getElementById("error_label");
+    
     if (valNum > myBoard.dims[0] * 0.3) {
         // Limit the creature speed to 30% of the board width
         valNum = myBoard.dims[0] * 0.3;
-        var err = document.getElementById("error_label");
+        var speedInput = document.getElementById("creature_speed");
+        creature_speed.value = valNum + "";
         err.innerText = "Cannot set speed above 30% of board width";
-
+    } else {
+        err.innerText = "";
     }
 
     myBoard.updateCreatureSpeed(valNum);
