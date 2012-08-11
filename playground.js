@@ -32,34 +32,19 @@ function Creature(posX, posY, speed, width) {
     this.randomMove = function(xLimits, yLimits) {
         // Pick a random position to move to given the limits
         // specified. No wrapping around the limits
-        
-        randomVector = norm([Math.random()*2.0 - 1, Math.random()*2.0 - 1]);
+        randomVector = norm([
+            Math.random()*2.0 - 1,
+            Math.random()*2.0 - 1]);
+            
+        randomVector = [randomVector[0] * this.speed,
+            randomVector[1] * this.speed];
+            
         this.x = bound(xLimits, this.x + randomVector[0]);
         this.y = bound(yLimits, this.y + randomVector[1]);
     }
 
 }
-function randomWithoutReplace(N, maxN) {
-    // Return N unique integers between 0 and maxN
-    if (maxN < N) {
-        alert("Number of unique integers requested must be less than max integer size");
-    }
-    
-    var numList = new Array(maxN);
-    var uniqueList = new Array(N);
-    var idx;
-    for (var i = 0; i < numList.length; i++) {
-        numList[i] = i;
-    }
-    
-    for (var k = 0; k < uniqueList.length; k++) {
-        idx = Math.floor(Math.random() * numList.length);
-        uniqueList[k] = numList[idx];
-        numList.splice(idx, 1);
-    }
-    
-    return uniqueList;
-}
+
 function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
     var N = dimensions[0] *dimensions[1];
     this.dims = dimensions;
@@ -80,6 +65,9 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
     this.draw = function () {
         var w = 1;
         var pos = [];
+        // Clear the playing space
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
         // Draw the playing space
         drawRect(0,0,this.dims[0], this.dims[1], '#2BB8FF');
 
@@ -111,7 +99,7 @@ function drawRect(x,y,w,h,color) {
 }
 
 // These globals are probably not the best way to do this
-var canvas, ctx, dx, dy, x0, y0, n, m, dw, dh, myBoard, nCreatures;
+var canvas, ctx
 var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
 
 // Disable menu from popping up when right-clicking
@@ -121,14 +109,14 @@ function NewGame() {
     canvas = document.getElementById("mycanvas");
     ctx = canvas.getContext("2d");
 
-    dx = 4; dy = 4; x0 = 0; y0 = 0;
-    n = parseInt(document.getElementById("num_tiles").value);
-    nCreatures = parseInt(document.getElementById("num_creatures").value)
+    var n = parseInt(document.getElementById("num_tiles").value);
+    var nCreatures = parseInt(document.getElementById("num_creatures").value)
     m = n;
-    dw = canvas.width / n; dh = canvas.height / m;
     var speed = 2;
-    ctx.clearRect(x0, y0, canvas.width, canvas.height);
-    myBoard = new Board([n,m], nCreatures, speed, n * 0.01);
+    canvas.width = n;
+    canvas.height = n;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    myBoard = new Board([n,m], nCreatures, speed * n * 0.01, n * 0.01);
     var obj = document.getElementById("result");
     obj.textContent = "";
     
@@ -141,11 +129,17 @@ function NewGame() {
   
     myBoard.draw();
 }
+
 var intervalID;
+var isRunning = false;
 function MoveCreatures() {
-    intervalID = setInterval("myBoard.move(); myBoard.draw();", 100);
+    if (!isRunning) {
+        intervalID = setInterval("myBoard.move(); myBoard.draw();", 100);
+        isRunning = true;
+    }
 }
 
 function StopCreatures() {
     clearInterval(intervalID);
+    isRunning = false;
 }
