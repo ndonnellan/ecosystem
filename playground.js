@@ -25,6 +25,7 @@ function norm(vector) {
 function Creature(posX, posY, speed, width) {
     this.x = posX;
     this.y = posY;
+    this.heading = 2.0 * Math.PI * Math.random();
     this.speed = speed;
     this.width = width;
     
@@ -32,13 +33,19 @@ function Creature(posX, posY, speed, width) {
     this.randomMove = function(xLimits, yLimits) {
         // Pick a random position to move to given the limits
         // specified. No wrapping around the limits
-        randomVector = norm([
-            Math.random()*2.0 - 1,
-            Math.random()*2.0 - 1]);
-            
-        randomVector = [randomVector[0] * this.speed,
-            randomVector[1] * this.speed];
-            
+        randomHeading = this.heading + Math.PI/4.0 * (Math.random()*2 - 1);
+        
+        // Sometimes they'll just turn around
+        //if (Math.random() < 0.10)
+        //    randomHeading += Math.PI;
+        
+        randomHeading = randomHeading % (2.0 * Math.PI);
+        
+        randomVector = [
+            Math.cos(randomHeading) * this.speed,
+            Math.sin(randomHeading) * this.speed];
+        this.heading = randomHeading;
+        
         this.x = bound(xLimits, this.x + randomVector[0]);
         this.y = bound(yLimits, this.y + randomVector[1]);
     }
