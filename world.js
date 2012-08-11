@@ -1,52 +1,18 @@
 // Main Javascript objects and methods
 // ***********************************
 
-function bound(limits, value) {
-    if (limits[0] >= limits[1])
-        throw "Limits must be ordered increasing";
-        
-    return Math.max(limits[0], Math.min(limits[1], value));
-}
-function norm(vector) {
-    magnitude = Math.sqrt(Math.pow(vector[0],2.0) + Math.pow(vector[1],2.0));
-    return [vector[0] / magnitude, vector[1] / magnitude];
-}
-function Creature(posX, posY, speed, width) {
-    this.x = posX;
-    this.y = posY;
-    this.heading = 2.0 * Math.PI * Math.random();
-    this.speed = speed;
-    this.width = width;
-    
-    this.getPos = function() {return [this.x, this.y] };
-    this.randomMove = function(xLimits, yLimits) {
-        // Pick a random position to move to given the limits
-        // specified. No wrapping around the limits
-        var randomHeading = this.heading + Math.PI/4.0 * (Math.random()*2 - 1);
-        
-        // Sometimes they'll just turn around
-        //if (Math.random() < 0.10)
-        //    randomHeading += Math.PI;
-        
-        randomHeading = randomHeading % (2.0 * Math.PI);
-        
-        randomVector = [
-            Math.cos(randomHeading) * this.speed,
-            Math.sin(randomHeading) * this.speed];
-        this.heading = randomHeading;
-        
-        this.x = bound(xLimits, this.x + Math.round(randomVector[0]));
-        this.y = bound(yLimits, this.y + Math.round(randomVector[1]));
-    }
-
-    this.move = this.randomMove;
-
-}
 
 function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
     this.dims = dimensions;
     this.creatures = [];
+    this.inWorldPoly = [];
     
+    // Add the corners of the polygon
+    this.inWorldPoly.push([0,            0            ]);
+    this.inWorldPoly.push([0,            this.dims[1] ]);
+    this.inWorldPoly.push([this.dims[0], this.dims[1] ]);
+    this.inWorldPoly.push([this.dims[0], 0            ]);
+
     // Create creature positions by randomly selecting positions
     // on the dimensions of the board.
     for (var i = 0; i < numCreatures; i++){
@@ -78,10 +44,13 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
             // Move each creature by calling its own MOVE function, but
             // give it the valid limits of the world
             var cWidth = this.creatures[i].width;
-            this.creatures[i].move(
-                [0 + Math.floor(cWidth/2), this.dims[0] - Math.ceil(cWidth/2)],
-                [0 + Math.floor(cWidth/2), this.dims[1] - Math.ceil(cWidth/2)]);
+            this.creatures[i].move(this.inWorldPoly);
         }
+    }
+
+    this.updateCreatureSpeed = function(newSpeed) {
+        for (c in this.creatures)
+            this.creatures[c].speed = newSpeed;
     }
 }
 
@@ -127,4 +96,8 @@ function MoveCreatures() {
 function StopCreatures() {
     clearInterval(intervalID);
     isRunning = false;
+}
+
+function UpdateCreatureSpeed(val) {
+    myBoard.updateCreatureSpeed(parseFloat(val));
 }

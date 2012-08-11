@@ -2,7 +2,9 @@
 <html>
     <head>
         <!--link href="minesweeper.css" type="text/css" rel="Stylesheet"/-->
-        <script src="playground.js"></script>
+        <script src="utils.js"></script>
+        <script src="zoo.js"></script>
+        <script src="world.js"></script>
         
     </head>
     <body onload="NewGame()">
@@ -22,8 +24,10 @@
             <label for="num_creatures">Creatures:</label>
             <input type="text" id="num_creatures" onchange="NewGame()" value="10"/>
         </p>
-        
-        <div id="slider_mines"></div>
+        <p>
+            <label for="creature_speed">Creature Speed:</label>
+            <input type="text" id="creature_speed" onchange="UpdateCreatureSpeed(this.value)" value="2"/>
+        </p>
         <p id="result"></p>
     </body>
 </html>
