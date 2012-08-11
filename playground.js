@@ -22,7 +22,7 @@ function Creature(posX, posY, speed, width) {
     this.randomMove = function(xLimits, yLimits) {
         // Pick a random position to move to given the limits
         // specified. No wrapping around the limits
-        randomHeading = this.heading + Math.PI/4.0 * (Math.random()*2 - 1);
+        var randomHeading = this.heading + Math.PI/4.0 * (Math.random()*2 - 1);
         
         // Sometimes they'll just turn around
         //if (Math.random() < 0.10)
@@ -35,16 +35,16 @@ function Creature(posX, posY, speed, width) {
             Math.sin(randomHeading) * this.speed];
         this.heading = randomHeading;
         
-        this.x = bound(xLimits, this.x + randomVector[0]);
-        this.y = bound(yLimits, this.y + randomVector[1]);
+        this.x = bound(xLimits, this.x + Math.round(randomVector[0]));
+        this.y = bound(yLimits, this.y + Math.round(randomVector[1]));
     }
+
+    this.move = this.randomMove;
 
 }
 
 function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
-    var N = dimensions[0] *dimensions[1];
     this.dims = dimensions;
-
     this.creatures = [];
     
     // Create creature positions by randomly selecting positions
@@ -75,8 +75,12 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
     
     this.move = function() {
         for (var i = 0; i < this.creatures.length; i++) {
-            // Move each creature by a random amount
-            this.creatures[i].randomMove([0, this.dims[0]], [0, this.dims[1]]);
+            // Move each creature by calling its own MOVE function, but
+            // give it the valid limits of the world
+            var cWidth = this.creatures[i].width;
+            this.creatures[i].move(
+                [0 + Math.floor(cWidth/2), this.dims[0] - Math.ceil(cWidth/2)],
+                [0 + Math.floor(cWidth/2), this.dims[1] - Math.ceil(cWidth/2)]);
         }
     }
 }
@@ -93,14 +97,17 @@ function NewGame() {
     canvas = document.getElementById("mycanvas");
     ctx = canvas.getContext("2d");
 
-    var n = parseInt(document.getElementById("num_tiles").value);
+    var width = parseInt(document.getElementById("board_width").value);
     var nCreatures = parseInt(document.getElementById("num_creatures").value)
-    m = n;
-    var speed = 2;
-    canvas.width = n;
-    canvas.height = n;
+    var height = width;
+    var creatureSpeed = Math.ceil(1 * width / 100);
+    var creatureWidth = Math.ceil(width / 100);
+
+    canvas.width = width;
+    canvas.height = width;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    myBoard = new Board([n,m], nCreatures, speed * n * 0.01, n * 0.01);
+    myBoard = new Board([width,height], nCreatures, creatureSpeed, creatureWidth);
     var obj = document.getElementById("result");
     obj.textContent = "";
 
@@ -112,7 +119,7 @@ var intervalID;
 var isRunning = false;
 function MoveCreatures() {
     if (!isRunning) {
-        intervalID = setInterval("myBoard.move(); myBoard.draw();", 100);
+        intervalID = setInterval("myBoard.move(); myBoard.draw();", 50);
         isRunning = true;
     }
 }
