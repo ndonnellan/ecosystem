@@ -1,16 +1,5 @@
 // Main Javascript objects and methods
 // ***********************************
-//  RULES:
-// The board should be an 8x8 grid and by default 10 hidden mines are
-// randomly placed into the board.
-// The interface should support these three functions:
-//  New Game    - start a new, randomly generated game.
-//  Validate    - check that a user has correctly marked all the tiles
-//              and end the game in either victory or failure.
-//  Cheat       - in any manner you deem appropriate, reveal the locations 
-//              of the mines without ending the game.
-//
-// ************************************************************************************
 
 function bound(limits, value) {
     if (limits[0] >= limits[1])
@@ -67,8 +56,6 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
             );
     }
 
-
-    
     this.draw = function () {
         var w = 1;
         var pos = [];
@@ -82,7 +69,7 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
         for (var i = 0; i < this.creatures.length; i++) {
             pos = this.creatures[i].getPos();
             w = this.creatures[i].width;
-            drawCreature(pos[0],pos[1],w,w,'#FF0000');
+            drawRect(pos[0],pos[1],w,w,'#FF0000');
         }
     }
     
@@ -94,23 +81,13 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
     }
 }
 
-function drawCreature(x, y, w, h, color) {
-   
-//    ctx.clearRect(x, y, w, h);
-    drawRect(x, y, w, h, color);
-}
-
-function drawRect(x,y,w,h,color) {
+function drawRect(x, y, w, h, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x,y,w,h);
 }
 
 // These globals are probably not the best way to do this
 var canvas, ctx
-var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
-
-// Disable menu from popping up when right-clicking
-document.oncontextmenu = function() {return false;};
 
 function NewGame() {
     canvas = document.getElementById("mycanvas");
@@ -126,13 +103,7 @@ function NewGame() {
     myBoard = new Board([n,m], nCreatures, speed * n * 0.01, n * 0.01);
     var obj = document.getElementById("result");
     obj.textContent = "";
-    
-    if (document.defaultView && document.defaultView.getComputedStyle) {
-        stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10)      || 0;
-        stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10)       || 0;
-        styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10)  || 0;
-        styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10)   || 0;
-    }
+
   
     myBoard.draw();
 }
