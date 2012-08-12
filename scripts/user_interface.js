@@ -23,7 +23,8 @@ function NewGame() {
     canvas.height = width;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    myWorld = new World([width,height], nCreatures, creatureSpeed, creatureWidth);  
+    myWorld = new World([width,height], nCreatures, creatureSpeed, creatureWidth); 
+    UpdateCreatureSpeed($("#slider_creature_speed").slider("value")); 
     myWorld.draw();
 }
 
@@ -80,6 +81,7 @@ $(function() {
             UpdateCreatureSpeed(ui.value);
         },
         min: 0,
-        max: 10
+        max: 10,
+        value: 2
     });
 });
