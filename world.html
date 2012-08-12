@@ -2,7 +2,11 @@
 <html>
     <head>
         <link href="stylesheets/world.css" type="text/css" rel="Stylesheet"/>
+        <link href="stylesheets/jquery-ui-1.8.22.custom.css" type="text/css" rel="Stylesheet"/>
+        <script src="scripts/jquery-1.7.2.min.js"></script>
+        <script src="scripts/jquery-ui-1.8.22.custom.min.js"></script>
         <script src="scripts/utils.js"></script>
+        <script src="scripts/user_interface.js"></script>
         <script src="scripts/zoo.js"></script>
         <script src="scripts/world.js"></script>
         
@@ -14,13 +18,19 @@
             <input type="text" id="board_width" onchange="NewGame()" value="200"/>
         </div>
         
-        <div>
-            <label for="num_creatures">Creatures:</label>
-            <input type="text" id="num_creatures" onchange="NewGame()" value="10"/>
+        <div class="slider_input">
+        <p>Number of Blue Creatures</p>
+        <div id="slider_num_blue_creatures"></div>
         </div>
+
+        <div class="slider_input">
+        <p>Creature Speed</p>
+        <div id="slider_creature_speed"></div>
+        </div>
+
         <div>
-            <label for="creature_speed">Creature Speed:</label>
-            <input type="text" id="creature_speed" onchange="UpdateCreatureSpeed(this.value)" value="2"/>
+            <label for="creature_curiosity">Curiosity:</label>
+            <input type="text" id="creature_curiosity" onchange="UpdateCuriosity(this.value)" value="0.1"/>
         </div>
         <div>
             <label class="error" id="error_label" value=""></label>

@@ -191,3 +191,8 @@ function intersectLineLine(a1, a2, b1, b2) {
 
     return result;
 };
+
+function sph2cart(r, theta) {
+	return [r * Math.cos(theta), r * Math.sin(theta)];
+
+}

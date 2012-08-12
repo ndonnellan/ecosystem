@@ -1,11 +1,13 @@
-// Main Javascript objects and methods
+// World methods and objects
 // ***********************************
 
-
-function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
+function World(dimensions, numCreatures, creatureSpeed, creatureSize) {
     this.dims = dimensions;
     this.creatures = [];
     this.inWorldPoly = [];
+
+    var canvas = document.getElementById("mycanvas");
+    var ctx = canvas.getContext("2d");
     
     // Add the corners of the polygon
     this.inWorldPoly.push([0,            0            ]);
@@ -13,13 +15,21 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
     this.inWorldPoly.push([this.dims[0], this.dims[1] ]);
     this.inWorldPoly.push([this.dims[0], 0            ]);
 
+    this.seedCreature = function(creatureObj){
+        this.creatures.push(creatureObj);
+        creatureObj.setPos(
+            this.dims[0] * Math.random(),
+            this.dims[1] * Math.random());
+    }
+    
     // Create creature positions by randomly selecting positions
-    // on the dimensions of the board.
+    // on the dimensions of the world.
     for (var i = 0; i < numCreatures; i++){
-        this.creatures.push(
-            new Creature(this.dims[0] * Math.random(), this.dims[1] * Math.random(),
-            creatureSpeed, creatureSize)
-            );
+        //this.creatures.push(
+        //    new Creature(this.dims[0] * Math.random(), this.dims[1] * Math.random(), this)
+        //    );
+
+        this.seedCreature(new BlueCreature(this));
     }
 
     this.draw = function () {
@@ -35,7 +45,7 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
         for (var i = 0; i < this.creatures.length; i++) {
             pos = this.creatures[i].getPos();
             w = this.creatures[i].width;
-            drawRect(pos[0] - w/2, pos[1] - w/2, w, w,'#FF0000');
+            drawRect(pos[0] - w/2, pos[1] - w/2, w, w,this.creatures[i].color);
         }
     }
     
@@ -52,61 +62,24 @@ function Board(dimensions, numCreatures, creatureSpeed, creatureSize) {
         for (c in this.creatures)
             this.creatures[c].speed = newSpeed;
     }
-}
 
-function drawRect(x, y, w, h, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x,y,w,h);
-}
-
-// These globals are probably not the best way to do this
-var canvas, ctx
-
-function NewGame() {
-    canvas = document.getElementById("mycanvas");
-    ctx = canvas.getContext("2d");
-
-    var width = parseInt(document.getElementById("board_width").value);
-    var nCreatures = parseInt(document.getElementById("num_creatures").value)
-    var height = width;
-    var creatureSpeed = Math.ceil(1 * width / 100);
-    var creatureWidth = Math.ceil(width / 100);
-
-    canvas.width = width;
-    canvas.height = width;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    myBoard = new Board([width,height], nCreatures, creatureSpeed, creatureWidth);  
-    myBoard.draw();
-}
-
-var intervalID;
-var isRunning = false;
-function MoveCreatures() {
-    if (!isRunning) {
-        isRunning = true;
-        intervalID = setInterval("myBoard.move(); myBoard.draw();", 50);
+    this.updateCreatureNumbers = function(newNumber) {
+        var oldNumber = this.creatures.length;
+        if (oldNumber < newNumber){
+            for (var i = 0; i < newNumber - oldNumber;i++){
+                this.seedCreature(new BlueCreature(this));
+            }
+        } else {
+            for (var i = 0; i < oldNumber - newNumber; i++) {
+                this.creatures.pop();
+            }
+        }
+        this.draw();
     }
-}
-
-function StopCreatures() {
-    clearInterval(intervalID);
-    isRunning = false;
-}
-
-function UpdateCreatureSpeed(val) {
-    var valNum = parseFloat(val);
-    var err = document.getElementById("error_label");
-    
-    if (valNum > myBoard.dims[0] * 0.3) {
-        // Limit the creature speed to 30% of the board width
-        valNum = myBoard.dims[0] * 0.3;
-        var speedInput = document.getElementById("creature_speed");
-        creature_speed.value = valNum + "";
-        err.innerText = "Cannot set speed above 30% of board width";
-    } else {
-        err.innerText = "";
+    this.updateCuriosity = function(val) {
+        for (c in this.creatures) {
+            if (this.creatures[c].hasOwnProperty('curiosity'))
+                this.creatures[c].curiosity = val;
+        }
     }
-
-    myBoard.updateCreatureSpeed(valNum);
 }
