@@ -18,6 +18,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     } else {
         this.inWorldPoly = poly;
     }
+    setError("");
 
     this.seedCreature = function(creatureObj){
         this.creatures.push(creatureObj);
@@ -100,7 +101,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         var nCreatures = this.creatures.length;
         var newPoly = [];
         var nEdges = Math.round(Math.random() * 4) + 3;
-
+        setError("");
         for (var i = 0; i < nEdges; i++){
             newPoly.push(
                 [dims[0]*Math.random(),dims[1]*Math.random()]);
