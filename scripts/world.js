@@ -100,7 +100,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         var dims = this.dims;
         var nCreatures = this.creatures.length;
         var newPoly = [];
-        var nEdges = Math.round(Math.random() * 4) + 3;
+        var nEdges = Math.round(Math.random() * 8) + 3;
         setError("");
         for (var i = 0; i < nEdges; i++){
             newPoly.push(
