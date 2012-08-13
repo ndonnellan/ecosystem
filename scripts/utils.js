@@ -31,8 +31,34 @@ function mag(vector) {
 	return Math.sqrt(m);
 }
 
+function dot(v1, v2){
+	// Dot-product of two vectors
+	var s = 0;
+	for (i in v1){
+		s += v1[i] * v2[i];
+	}
+	return s;
+}
+
+function angleBetween(v1, v2){
+	return Math.acos(dot(v1,v2) / (mag(v1) * mag(v2)));
+}
+
 function inPolygon(polygonCoords, pointCoords) {
 	// Check to see if the point passed in is within the polygon
+	// Use the sum of angles
+	var s = 0;
+	var v1, v2;
+	for (var c =0; c < polygonCoords.length; c++) {
+		v1 = subtractVector(polygonCoords[c], pointCoords);
+		v2 = subtractVector(polygonCoords[(c+1) % polygonCoords.length], pointCoords)
+		s += angleBetween(v1, v2);
+	}
+
+	if (Math.abs(s) < (Math.PI*2))
+		return false;
+	else
+		return true;
 }
 
 function addVector(p1, p2) {
@@ -159,7 +185,7 @@ function closestIntersection(polygonCoords, pointCoords, directionVector, maxDis
 	// find the closest one
 	var closest = intersections.pop();
 	var next = [];
-	while (intersections) {
+	while (intersections && intersections.length > 0) {
 		next = intersections.pop();
 		if (mag(subtractVector(pointCoords, next)) 
 			> mag(subtractVector(pointCoords, closest)))

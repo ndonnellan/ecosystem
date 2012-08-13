@@ -1,8 +1,9 @@
 <!doctype html>
 <html>
     <head>
-        <link href="stylesheets/world.css" type="text/css" rel="Stylesheet"/>
+        <link href="stylesheets/bootstrap.css" type="text/css" rel="Stylesheet"/>
         <link href="stylesheets/jquery-ui-1.8.22.custom.css" type="text/css" rel="Stylesheet"/>
+        <link href="stylesheets/world.css" type="text/css" rel="Stylesheet"/>
         <script src="scripts/jquery-1.7.2.min.js"></script>
         <script src="scripts/jquery-ui-1.8.22.custom.min.js"></script>
         <script src="scripts/utils.js"></script>
@@ -12,36 +13,57 @@
         
     </head>
     <body onload="NewGame()">
-        
-        <div>
-            <label for="board_width">Board Width:</label>
-            <input type="text" id="board_width" onchange="NewGame()" value="200"/>
-        </div>
-        
-        <div class="slider_input">
-        <p>Number of Blue Creatures</p>
-        <div id="slider_num_blue_creatures"></div>
-        </div>
+        <div class="container">
+            <div class="row">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                    <a href="./">Home</a>
+                    </li>
+                    <li><a href="./world">World</a></li>
+                    <li><a href="">empty...</a></li>
+                </ul>
+            </div>
 
-        <div class="slider_input">
-        <p>Creature Speed</p>
-        <div id="slider_creature_speed"></div>
-        </div>
+            <div class="row">
+                <div class="span3">
+                    <div>
+                        <label for="board_width">Board Width:</label>
+                        <input type="text" id="board_width" onchange="NewGame()" value="200"/>
+                    </div>
+                    
+                    <div class="slider_input">
+                    <p>Number of Blue Creatures</p>
+                    <div id="slider_num_blue_creatures"></div>
+                    </div>
 
-        <div>
-            <label for="creature_curiosity">Curiosity:</label>
-            <input type="text" id="creature_curiosity" onchange="UpdateCuriosity(this.value)" value="0.1"/>
-        </div>
-        <div>
-            <label class="error" id="error_label" value=""></label>
-        </div>
+                    <div class="slider_input">
+                    <p>Creature Speed</p>
+                    <div id="slider_creature_speed"></div>
+                    </div>
 
-        <button type="button" onclick="NewGame()">Start New Game</button>
-        <button type="button" onclick="MoveCreatures()">Move Creatures!</button>
-        <button type="button" onclick="StopCreatures()">Stop Creatures</button>
-        <br/>
-        <div id="world_map">
-            <canvas id="mycanvas" width =400px height=400px></canvas>
+                    <div>
+                        <label for="creature_curiosity">Curiosity:</label>
+                        <input type="text" id="creature_curiosity" onchange="UpdateCuriosity(this.value)" value="0.1"/>
+                    </div>
+                    <div>
+                        <label class="error" id="error_label" value=""></label>
+                    </div>                    
+                
+                </div>
+                <div class="span8">
+                    <div class="row">
+                        <div class="btn" onclick="NewGame()"><i class="icon-refresh"></i>&nbsp;Reset</div>
+                        <div class="btn" onclick="MoveCreatures()"><i class="icon-play"></i></div>
+                        <div class="btn" onclick="StopCreatures()"><i class="icon-pause"></i></div>
+                        <div class="btn" onclick="RandomMap()"><i class="icon-th">Map!</i></div>
+                    </div>
+                    <div class="row">
+                        <div id="world_map">
+                            <canvas id="mycanvas" width =400px height=400px></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>

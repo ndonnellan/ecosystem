@@ -1,7 +1,7 @@
 // World methods and objects
 // ***********************************
 
-function World(dimensions, numCreatures, creatureSpeed, creatureSize) {
+function World(dimensions, numCreatures, creatureSpeed, poly) {
     this.dims = dimensions;
     this.creatures = [];
     this.inWorldPoly = [];
@@ -10,25 +10,36 @@ function World(dimensions, numCreatures, creatureSpeed, creatureSize) {
     var ctx = canvas.getContext("2d");
     
     // Add the corners of the polygon
-    this.inWorldPoly.push([0,            0            ]);
-    this.inWorldPoly.push([0,            this.dims[1] ]);
-    this.inWorldPoly.push([this.dims[0], this.dims[1] ]);
-    this.inWorldPoly.push([this.dims[0], 0            ]);
+    if (!poly){
+        this.inWorldPoly.push([0,            0            ]);
+        this.inWorldPoly.push([0,            this.dims[1] ]);
+        this.inWorldPoly.push([this.dims[0], this.dims[1] ]);
+        this.inWorldPoly.push([this.dims[0], 0            ]);
+    } else {
+        this.inWorldPoly = poly;
+    }
 
     this.seedCreature = function(creatureObj){
         this.creatures.push(creatureObj);
-        creatureObj.setPos(
-            this.dims[0] * Math.random(),
-            this.dims[1] * Math.random());
+        var p;
+        var maxIter = 100;
+        var k = 0;
+        do {
+            p = [this.dims[0] * Math.random(),
+                this.dims[1] * Math.random()]
+            k += 1;
+        } while (!inPolygon(this.inWorldPoly, p) && k < maxIter)
+
+        if (k == maxIter) {
+            setError("Could not populate map efficiently");
+            return
+        }
+        creatureObj.setPos(p[0],p[1]);
     }
     
     // Create creature positions by randomly selecting positions
     // on the dimensions of the world.
     for (var i = 0; i < numCreatures; i++){
-        //this.creatures.push(
-        //    new Creature(this.dims[0] * Math.random(), this.dims[1] * Math.random(), this)
-        //    );
-
         this.seedCreature(new BlueCreature(this));
     }
 
@@ -39,7 +50,7 @@ function World(dimensions, numCreatures, creatureSpeed, creatureSize) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Draw the playing space
-        drawRect(0,0,this.dims[0], this.dims[1], '#2BB8FF');
+        drawPoly(this.inWorldPoly, '#2BB8FF')
 
         // Draw the creatures
         for (var i = 0; i < this.creatures.length; i++) {
@@ -81,5 +92,28 @@ function World(dimensions, numCreatures, creatureSpeed, creatureSize) {
             if (this.creatures[c].hasOwnProperty('curiosity'))
                 this.creatures[c].curiosity = val;
         }
+    }
+
+    this.setRandomMap = function () {
+        // Save the existing settings.
+        var dims = this.dims;
+        var nCreatures = this.creatures.length;
+        var newPoly = [];
+        var nEdges = Math.round(Math.random() * 4) + 3;
+
+        for (var i = 0; i < nEdges; i++){
+            newPoly.push(
+                [dims[0]*Math.random(),dims[1]*Math.random()]);
+        }
+
+        this.inWorldPoly = newPoly;
+        this.creatures = [];
+
+        for (var n = 0; n < nCreatures; n++) {
+            this.seedCreature(new BlueCreature(this));
+        }
+
+        this.draw();
+
     }
 }
