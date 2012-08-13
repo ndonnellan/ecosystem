@@ -44,21 +44,65 @@ function angleBetween(v1, v2){
 	return Math.acos(dot(v1,v2) / (mag(v1) * mag(v2)));
 }
 
+function matrixMax(matrix, dim){
+	var max;
+	var val;
+	for (var i = 0; i < matrix.length; i++){
+		val = matrix[i][dim];
+		if (i == 0){
+			max = val;
+		} else {
+			max = max >= val ? max : val;
+		}
+	}
+	return max;
+}
+
+function matrixMin(matrix, dim){
+	var min;
+	var val;
+	for (var i = 0; i < matrix.length; i++){
+		val = matrix[i][dim];
+		if (i == 0){
+			min = val;
+		} else {
+			min = min <= val ? min : val;
+		}
+	}
+	return min;
+}
+
+
 function inPolygon(polygonCoords, pointCoords) {
 	// Check to see if the point passed in is within the polygon
-	// Use the sum of angles
-	var s = 0;
-	var v1, v2;
-	for (var c =0; c < polygonCoords.length; c++) {
-		v1 = subtractVector(polygonCoords[c], pointCoords);
-		v2 = subtractVector(polygonCoords[(c+1) % polygonCoords.length], pointCoords)
-		s += angleBetween(v1, v2);
-	}
+	
+	// First check for simple bounding (rectangular)
+	var xMax, xMin, yMax, yMin;
+	xMin = matrixMin(polygonCoords,0);
+	xMax = matrixMax(polygonCoords,0);
+	yMin = matrixMin(polygonCoords,1);
+	yMax = matrixMax(polygonCoords,1);
 
-	if (Math.abs(s) < (Math.PI*2))
+	var x = pointCoords[0];
+	var y = pointCoords[1];
+
+	if (x < xMin || x > xMax || y < yMin || y > yMax)
 		return false;
-	else
-		return true;
+
+	// More complicated answer
+	var i, j, c;
+	var c = false;
+	var v = polygonCoords;
+
+	// Taken from:
+	//  http://stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
+	for (i = 0; i < v.length; i++) {
+		j = (i + 1) % v.length;
+		if ( ((v[i][1] > y) != (v[j][1] > y)) &&
+		 (x < (v[j][0] - v[i][0]) * (y-v[i][1]) / (v[j][1]-v[i][1]) + v[i][0]) )
+		   c = !c;
+	}
+  	return c;
 }
 
 function addVector(p1, p2) {
