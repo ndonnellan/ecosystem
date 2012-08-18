@@ -5,16 +5,14 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     this.dims = dimensions;
     this.creatures = [];
     this.inWorldPoly = [];
+    this.outWorldPoly = [];
 
     var canvas = document.getElementById("mycanvas");
     var ctx = canvas.getContext("2d");
     
     // Add the corners of the polygon
     if (!poly){
-        this.inWorldPoly.push($V([0, 0]));
-        this.inWorldPoly.push($V([0,this.dims[1]]));
-        this.inWorldPoly.push($V([this.dims[0], this.dims[1]]));
-        this.inWorldPoly.push($V([this.dims[0], 0]));
+        this.inWorldPoly = rectPoly(0,0,this.dims[0], this.dims[1]);
     } else {
         this.inWorldPoly = poly;
     }
@@ -29,7 +27,8 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
             p = $V([this.dims[0] * Math.random(),
                 this.dims[1] * Math.random()]);
             k += 1;
-        } while (!inPolygon(this.inWorldPoly, p) && k < maxIter)
+        } while ((!inPolygon(this.inWorldPoly, p) 
+            || inManyPolygons(this.outWorldPoly, p)) && k < maxIter)
 
         if (k == maxIter) {
             setError("Could not populate map efficiently");
@@ -53,6 +52,10 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         // Draw the playing space
         drawPoly(this.inWorldPoly, '#2BB8FF')
 
+        // Draw obstacles
+        for (var i = 0; i < this.outWorldPoly.length; i++){
+            drawPoly(this.outWorldPoly[i], '#FFF');
+        }
         // Draw the creatures
         for (var i = 0; i < this.creatures.length; i++) {
             pos = this.creatures[i].getPos();
@@ -66,7 +69,8 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
             // Move each creature by calling its own MOVE function, but
             // give it the valid limits of the world
             var cWidth = this.creatures[i].width;
-            this.creatures[i].move(this.inWorldPoly);
+            this.creatures[i].move(
+                this.outWorldPoly.concat([this.inWorldPoly]));
         }
     }
 
@@ -100,14 +104,31 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         var dims = this.dims;
         var nCreatures = this.creatures.length;
         var newPoly = [];
-        var nEdges = Math.round(Math.random() * 8) + 3;
+
+        // Start with a square and add obstacles within it
+        this.inWorldPoly = rectPoly(0,0,dims[0], dims[1]);
+
+        var nObstacles = randomInt([1, 5]);
+        this.outWorldPoly = [];
+        var x0, y0;
+
         setError("");
-        for (var i = 0; i < nEdges; i++){
-            newPoly.push(
-                $V([dims[0]*Math.random(),dims[1]*Math.random()]));
+        for (var i = 0; i < nObstacles; i++){
+            // Create a rectangle with random X,Y position (within
+            // the limits of the world) with random width and height
+            // (within some limits)
+            x0 = randomFloat([0, dims[0]]);
+            y0 = randomFloat([0, dims[1]]);
+
+            this.outWorldPoly.push(
+                rectPoly(
+                    x0,y0,
+                    randomFloat([dims[0] * .01, Math.min(dims[0] * .50, dims[0]-x0)]),
+                    randomFloat([dims[1] * .01, Math.min(dims[1] * .50, dims[1]-y0)])
+                    )
+                );
         }
 
-        this.inWorldPoly = newPoly;
         this.creatures = [];
 
         for (var n = 0; n < nCreatures; n++) {

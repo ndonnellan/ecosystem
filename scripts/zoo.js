@@ -84,7 +84,7 @@ Creature.prototype.randomMove = function(polygonCoords) {
     // I'm kind of cheating in my usage of closestIntersection because it expects some
     // sort of direction vector (usually normalized) and a maximum distance. Since 
     // RANDOMVECTOR is not normalized, I just use 1 as the max distance.
-    var closest = closestIntersection(polygonCoords, this.pos, randomVector, 1);
+    var closest = closestIntersection(polygonCoords, this.pos, randomVector, this.speed);
 
     if (closest) {
     	if (this.speed > 20) {
@@ -105,9 +105,9 @@ Creature.prototype.randomMove = function(polygonCoords) {
 
 }
 
-Creature.prototype.move = function(polygonCoords) {
+Creature.prototype.move = function(polygonList) {
     this.posLast = this.pos.dup();
-    this.randomMove(polygonCoords);
+    this.randomMove(polygonList);
 }
 
 Creature.prototype.detect = function(creatureList) {
