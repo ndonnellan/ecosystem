@@ -11,10 +11,10 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     
     // Add the corners of the polygon
     if (!poly){
-        this.inWorldPoly.push([0,            0            ]);
-        this.inWorldPoly.push([0,            this.dims[1] ]);
-        this.inWorldPoly.push([this.dims[0], this.dims[1] ]);
-        this.inWorldPoly.push([this.dims[0], 0            ]);
+        this.inWorldPoly.push($V([0, 0]));
+        this.inWorldPoly.push($V([0,this.dims[1]]));
+        this.inWorldPoly.push($V([this.dims[0], this.dims[1]]));
+        this.inWorldPoly.push($V([this.dims[0], 0]));
     } else {
         this.inWorldPoly = poly;
     }
@@ -26,8 +26,8 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         var maxIter = 100;
         var k = 0;
         do {
-            p = [this.dims[0] * Math.random(),
-                this.dims[1] * Math.random()]
+            p = $V([this.dims[0] * Math.random(),
+                this.dims[1] * Math.random()]);
             k += 1;
         } while (!inPolygon(this.inWorldPoly, p) && k < maxIter)
 
@@ -35,7 +35,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
             setError("Could not populate map efficiently");
             return
         }
-        creatureObj.setPos(p[0],p[1]);
+        creatureObj.setPos(p);
     }
     
     // Create creature positions by randomly selecting positions
@@ -57,7 +57,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         for (var i = 0; i < this.creatures.length; i++) {
             pos = this.creatures[i].getPos();
             w = this.creatures[i].width;
-            drawRect(pos[0] - w/2, pos[1] - w/2, w, w,this.creatures[i].color);
+            drawRect(pos.e(1)- w/2, pos.e(2) - w/2, w, w,this.creatures[i].color);
         }
     }
     
@@ -104,7 +104,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         setError("");
         for (var i = 0; i < nEdges; i++){
             newPoly.push(
-                [dims[0]*Math.random(),dims[1]*Math.random()]);
+                $V([dims[0]*Math.random(),dims[1]*Math.random()]));
         }
 
         this.inWorldPoly = newPoly;

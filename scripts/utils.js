@@ -13,42 +13,17 @@ function bound(limits, value) {
     return Math.max(limits[0], Math.min(limits[1], value));
 }
 
-function norm(vector) {
-    magnitude = mag(vector);
-    var newVector = vector.slice(0);;
-    for (var i = 0; i < vector.length; i++) {
-    	newVector[i] /= magnitude;
-    }
-    return newVector;
-}
-
-function mag(vector) {
-	var m = 0;
-	for (var i = 0; i < vector.length; i++) {
-		m += Math.pow(vector[i],2.0);
-	}
-
-	return Math.sqrt(m);
-}
-
-function dot(v1, v2){
-	// Dot-product of two vectors
-	var s = 0;
-	for (i in v1){
-		s += v1[i] * v2[i];
-	}
-	return s;
-}
-
 function angleBetween(v1, v2){
-	return Math.acos(dot(v1,v2) / (mag(v1) * mag(v2)));
+	return Math.acos(v1.dot(v2) / (v1.modulus() * v2.modulus()));
 }
 
 function matrixMax(matrix, dim){
+	// Returns max value of a collection of vectors along a dimension
+	// Dimensions start at 1 (not zero)
 	var max;
 	var val;
 	for (var i = 0; i < matrix.length; i++){
-		val = matrix[i][dim];
+		val = matrix[i].e(dim);
 		if (i == 0){
 			max = val;
 		} else {
@@ -59,10 +34,12 @@ function matrixMax(matrix, dim){
 }
 
 function matrixMin(matrix, dim){
+	// Returns min value of a collection of vectors along a dimension
+	// Dimensions start at 1 (not zero)
 	var min;
 	var val;
 	for (var i = 0; i < matrix.length; i++){
-		val = matrix[i][dim];
+		val = matrix[i].e(dim);
 		if (i == 0){
 			min = val;
 		} else {
@@ -73,20 +50,18 @@ function matrixMin(matrix, dim){
 }
 
 
-function inPolygon(polygonCoords, pointCoords) {
+function inPolygon(polygonCoords, p) {
 	// Check to see if the point passed in is within the polygon
 	
 	// First check for simple bounding (rectangular)
 	var xMax, xMin, yMax, yMin;
-	xMin = matrixMin(polygonCoords,0);
-	xMax = matrixMax(polygonCoords,0);
-	yMin = matrixMin(polygonCoords,1);
-	yMax = matrixMax(polygonCoords,1);
+	xMin = matrixMin(polygonCoords,1);
+	xMax = matrixMax(polygonCoords,1);
+	yMin = matrixMin(polygonCoords,2);
+	yMax = matrixMax(polygonCoords,2);
+	var x = p.e(1), y = p.e(2);
 
-	var x = pointCoords[0];
-	var y = pointCoords[1];
-
-	if (x < xMin || x > xMax || y < yMin || y > yMax)
+	if (p.e(1) < xMin || p.e(1) > xMax || p.e(2) < yMin || p.e(2) > yMax)
 		return false;
 
 	// More complicated answer
@@ -98,98 +73,36 @@ function inPolygon(polygonCoords, pointCoords) {
 	//  http://stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
 	for (i = 0; i < v.length; i++) {
 		j = (i + 1) % v.length;
-		if ( ((v[i][1] > y) != (v[j][1] > y)) &&
-		 (x < (v[j][0] - v[i][0]) * (y-v[i][1]) / (v[j][1]-v[i][1]) + v[i][0]) )
+		if ( ((v[i].e(2) > p.e(2)) != (v[j].e(2) > p.e(2))) &&
+		 (p.e(1) < (v[j].e(1) - v[i].e(1)) * (p.e(2)-v[i].e(2)) / (v[j].e(2)-v[i].e(2)) + v[i].e(1)) )
 		   c = !c;
 	}
   	return c;
-}
-
-function addVector(p1, p2) {
-	var p3 = p1.slice(0);
-	for (var i = 0; i < p1.length; i++) {
-		p3[i] += p2[i];
-	}
-	return p3;
-}
-
-function subtractVector(p1,p2) {
-	var p3 = p1.slice(0);
-	for (var i = 0; i < p1.length; i++) {
-		p3[i] -= p2[i];
-	}
-	return p3;	
-}
-
-function multiplyVector(p1, p2) {
-	p1 = vectorize(p1);
-	p2 = vectorize(p2);
-	var p3 = p1.slice(0);
-	if (!p2.length || p2.length == 1) {
-		if (!p1.length || p1.length == 1) {
-			return p1 * p2;
-		} else {
-			for (var i = 0; i < p1.length; i++) {
-				p3[i] = p3[i] * p2;
-			}
-		}
-
-	} else {
-		if (!p1.length || p1.length == 1) {
-			p3 = p2.slice(0);
-			for (var i = 0; i < p2.length; i++) {
-				p3[i] = p3[i] * p1;
-			}
-		} else {
-			if (p1.length != p2.length)
-				throw "Cannot multiply vectors of different length"
-
-			for (var i = 0; i < p1.length; i++) {
-				p3[i] = p1[i] * p2[i];
-			}
-		}
-	}
-
-	return p3;
 }
 
 function getFacingPoints(pointList, point, direction) {
 	// Return the subset of points in POINTLIST that are within
 	// 180 degrees of POINT when facing in DIRECTION
 	facingPoints = [];
-	var normDirection = norm(direction);
+	var normDirection = direction.modulus();
 	var nextDirection;
 
 	for (var i = 0; i < pointList.length; i++){
-		nextDirection = norm(subtractVector(pointList[i], point));
+		nextDirection = pointList[i].subtract(point).modulus();
 		if (allSignEqual(nextDirection, direction))
 			facingPoints.push(pointList[i]);
 	}
 }
 
-function sign(value) {
-	if (!value.length || value.length==1)
-		return (value < 0) ? -1 : 1;
-
-	var s = [];
-	for (var i = 1; i < value.length; i++) {
-		if (value[0] < 0){
-			s.push(-1);
-		} else {
-			s.push(1);
-		}
-	}
-
-	return s;
+function sign(v) {
+	// Return sign of vector
+	var vSign = v.dup();
+	vSign.each(function(elem){return (elem >= 0) ? 1 : -1;});
+	return vSign;
 }
 
 function allSignEqual(v1, v2){
-	for (var i = 1; i < v1.length; i++) {
-		if (sign(v1[i]) != sign(v2[i]))
-			return false;
-	}
-
-	return true;
+	return sign(v1).isEqual(sign(v2));
 }
 
 
@@ -203,7 +116,7 @@ function closestIntersection(polygonCoords, pointCoords, directionVector, maxDis
 		maxDistance = 1000;
 
 	var p1 = pointCoords;
-	var p2 = addVector(pointCoords, multiplyVector(directionVector, maxDistance));
+	var p2 = directionVector.x(maxDistance).add(pointCoords);
 	var intersections = [];
 	var result = false;
 	for (var i = 0; i < polygonCoords.length; i++) {
@@ -231,9 +144,9 @@ function closestIntersection(polygonCoords, pointCoords, directionVector, maxDis
 	var next = [];
 	while (intersections && intersections.length > 0) {
 		next = intersections.pop();
-		if (mag(subtractVector(pointCoords, next)) 
-			> mag(subtractVector(pointCoords, closest)))
-			closest = next;
+		if (pointCoords.subtract(next).modulus()
+			> pointCoords.subtract(closest).modulus())
+			closest = next.dup();
 	}
 
 	return closest;
@@ -241,21 +154,21 @@ function closestIntersection(polygonCoords, pointCoords, directionVector, maxDis
 }
 
 // HELFPUL REFERENCE:
-//	http://www.kevlindev.com/gui/math/intersection/Intersection.js
+//	http://www.kevlindev.com/gui/math/intersection/Intersection.e(2)s
 function intersectLineLine(a1, a2, b1, b2) {
     var result = false;
     
-    var ua_t = (b2[0] - b1[0]) * (a1[1] - b1[1]) - (b2[1] - b1[1]) * (a1[0] - b1[0]);
-    var ub_t = (a2[0] - a1[0]) * (a1[1] - b1[1]) - (a2[1] - a1[1]) * (a1[0] - b1[0]);
-    var u_b  = (b2[1] - b1[1]) * (a2[0] - a1[0]) - (b2[0] - b1[0]) * (a2[1] - a1[1]);
+    var ua_t = (b2.e(1) - b1.e(1)) * (a1.e(2) - b1.e(2)) - (b2.e(2) - b1.e(2)) * (a1.e(1) - b1.e(1));
+    var ub_t = (a2.e(1) - a1.e(1)) * (a1.e(2) - b1.e(2)) - (a2.e(2) - a1.e(2)) * (a1.e(1) - b1.e(1));
+    var u_b  = (b2.e(2) - b1.e(2)) * (a2.e(1) - a1.e(1)) - (b2.e(1) - b1.e(1)) * (a2.e(2) - a1.e(2));
 
     if ( u_b != 0 ) {
         var ua = ua_t / u_b;
         var ub = ub_t / u_b;
 
         if ( 0 <= ua && ua <= 1 && 0 <= ub && ub <= 1 ) {
-            result = [a1[0] + ua * (a2[0] - a1[0]),
-                    a1[1] + ua * (a2[1] - a1[1])];
+            result = $V([a1.e(1) + ua * (a2.e(1) - a1.e(1)),
+                    a1.e(2) + ua * (a2.e(2) - a1.e(2))]);
         }
     }
 

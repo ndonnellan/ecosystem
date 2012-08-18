@@ -13,8 +13,8 @@
 function wallApproach(creature, wallPoint) {
     // If there is any intersection within the maximum distance, only travel
     // as far as the intersection (but don't go to it!)
-    var almostThere = addVector(creature.pos,
-        multiplyVector(0.9, subtractVector(wallPoint,creature.pos)));
+    var almostThrere = wallPoint.dup()
+        .subtract(creature.pos).x(0.9).add(creature.pos);
 
     creature.pos = almostThere;
     creature.speedLast = creature.speedLast * 0.9;
@@ -23,7 +23,7 @@ function wallApproach(creature, wallPoint) {
 function wallStop(creature, wallPoint) {
     //Alternative to wallApproach that retreats to the last point 
     //(probably not good for large speeds)
-    creature.pos = creature.posLast.slice(0);
+    creature.pos = creature.posLast.dup();
     creature.speedLast = 0;
     creature.heading = (creature.heading + Math.PI) % (Math.PI * 2);
 }
@@ -33,8 +33,8 @@ function wallStop(creature, wallPoint) {
 // ***********************
 function Creature(world) {
     this.world = world;
-    this.pos = [0, 0];
-    this.posLast = this.pos.slice(0);
+    this.pos = $V([0, 0]);
+    this.posLast = this.pos.dup();
 
     this.heading = 2.0 * Math.PI * Math.random();
     this.speed = 2;
@@ -49,7 +49,7 @@ function Creature(world) {
     this.maxHeadingCone = Math.PI * 2.0;
     this.maxConeShrink = 7 * Math.PI / 4.0;
 }
-Creature.prototype.setPos = function(x,y) {this.pos = [x,y];}
+Creature.prototype.setPos = function(point) {this.pos = point.dup();}
 Creature.prototype.getPos = function() {return this.pos };
 Creature.prototype.getRandomHeading = function(currentHeading) {
 	// getRandomHeading: Momentum is approximated
@@ -75,9 +75,9 @@ Creature.prototype.randomMove = function(polygonCoords) {
     
     randomHeading = randomHeading % (2.0 * Math.PI);
     
-    var randomVector = [
+    var randomVector = $V([
         Math.cos(randomHeading) * this.speed,
-        Math.sin(randomHeading) * this.speed];
+        Math.sin(randomHeading) * this.speed]);
     this.heading = randomHeading;
     
     // Now attempt to move the amount requested given the limitations of the world
@@ -94,7 +94,7 @@ Creature.prototype.randomMove = function(polygonCoords) {
         }
 
     } else {
-    	this.pos = addVector(this.pos, randomVector);
+    	this.pos = this.pos.add(randomVector);
     	this.speedLast = this.speed;
     }
 
@@ -106,7 +106,7 @@ Creature.prototype.randomMove = function(polygonCoords) {
 }
 
 Creature.prototype.move = function(polygonCoords) {
-    this.posLast = this.pos.slice(0);
+    this.posLast = this.pos.dup();
     this.randomMove(polygonCoords);
 }
 
@@ -118,14 +118,14 @@ Creature.prototype.detect = function(creatureList) {
     var diff;
     for (c in creatureList) {
         if (creatureList[c] != this) {
-            diff = subtractVector(creatureList[c].getPos(), this.getPos());
+            diff = creatureList[c].pos.subtract(this.pos);
             if (!close){
-                close = diff;
-                magClose = mag(close);
+                close = diff.dup();
+                magClose = close.modulus();
             } else {
-                if (mag(diff) < magClose) {
-                    close = diff;
-                    magClose = mag(close);
+                if (diff.modulus() < magClose) {
+                    close = diff.dup();
+                    magClose = close.modulus();
                 }
             }
         }
@@ -160,8 +160,8 @@ BlueCreature.prototype.getRandomHeading = function(heading) {
     var vector = sph2cart(1, newHeading);
     var newVector;
     if (close){
-        newVector = addVector(vector, multiplyVector(norm(close), this.curiosity));
-        newHeading = Math.atan2(newVector[0], newVector[1]);
+        newVector = close.toUnitVector().x(this.curiosity).add(vector);
+        newHeading = Math.atan2(newVector.e(1), newVector.e(2));
     }
 
     return newHeading;

@@ -12,10 +12,10 @@ function drawRect(x, y, w, h, color) {
 function drawPoly(coords, color){
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(coords[0][0], coords[0][1]);
+    ctx.moveTo(coords[0].e(1), coords[0].e(2));
 
     for (i = 1; i < coords.length; i++){
-        ctx.lineTo(coords[i][0],coords[i][1]);
+        ctx.lineTo(coords[i].e(1),coords[i].e(2));
     }
 
     ctx.closePath();
@@ -34,7 +34,6 @@ function NewGame() {
 
     canvas.width = width;
     canvas.height = width;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     myWorld = new World([width,height], nCreatures, creatureSpeed); 
     UpdateCreatureSpeed($("#slider_creature_speed").slider("value")); 
