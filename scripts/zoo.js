@@ -13,7 +13,7 @@
 function wallApproach(creature, wallPoint) {
     // If there is any intersection within the maximum distance, only travel
     // as far as the intersection (but don't go to it!)
-    var almostThrere = wallPoint.dup()
+    var almostThere = wallPoint.dup()
         .subtract(creature.pos).x(0.9).add(creature.pos);
 
     creature.pos = almostThere;
@@ -39,7 +39,7 @@ function Creature(world) {
     this.heading = 2.0 * Math.PI * Math.random();
     this.speed = 2;
     this.speedLast = 0;
-    this.width = 10;
+    this.width = 3;
     this.color = '#FF0000';
     this.maxDetectRange = 10;
 
@@ -87,11 +87,12 @@ Creature.prototype.randomMove = function(polygonCoords) {
     var closest = closestIntersection(polygonCoords, this.pos, randomVector, this.speed);
 
     if (closest) {
-    	if (this.speed > 20) {
-            wallApproach(this, closest);
-        } else {
-            wallStop(this, closest);
-        }
+        wallApproach(this,closest);
+    	// if (this.speed > 20) {
+     //        wallApproach(this, closest);
+     //    } else {
+     //        wallStop(this, closest);
+     //    }
 
     } else {
     	this.pos = this.pos.add(randomVector);
@@ -108,11 +109,14 @@ Creature.prototype.randomMove = function(polygonCoords) {
 Creature.prototype.move = function(polygonList) {
     this.posLast = this.pos.dup();
     this.randomMove(polygonList);
+    if (!this.speed)
+        throw "Undefined SPEED";
 }
 
 Creature.prototype.detect = function(creatureList) {
     // Determine if any of the creatures in the list are close to this creature
     // and return a vector to the closest one
+    return false;
     var close;
     var magClose;
     var diff;

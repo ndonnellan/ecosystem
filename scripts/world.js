@@ -6,6 +6,8 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     this.creatures = [];
     this.inWorldPoly = [];
     this.outWorldPoly = [];
+    this.speedMax = 10;
+    this.speedDist = 5;
 
     var canvas = document.getElementById("mycanvas");
     var ctx = canvas.getContext("2d");
@@ -18,8 +20,18 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     }
     setError("");
 
+    this.getRandomSpeed = function(){
+        var d = this.speedMax * (1-this.speedDist);
+        var s = Math.random() * (this.speedMax - d) + d;
+        if (s == NaN)
+            throw "NaN speed computed";
+
+        return s;
+    }
     this.seedCreature = function(creatureObj){
         this.creatures.push(creatureObj);
+        creatureObj.speed = this.getRandomSpeed();
+
         var p;
         var maxIter = 100;
         var k = 0;
@@ -35,6 +47,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
             return
         }
         creatureObj.setPos(p);
+
     }
     
     // Create creature positions by randomly selecting positions
@@ -74,9 +87,9 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         }
     }
 
-    this.updateCreatureSpeed = function(newSpeed) {
+    this.updateCreatureSpeed = function() {
         for (c in this.creatures)
-            this.creatures[c].speed = newSpeed;
+            this.creatures[c].speed = this.getRandomSpeed();
     }
 
     this.updateCreatureNumbers = function(newNumber) {

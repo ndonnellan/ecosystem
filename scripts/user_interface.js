@@ -36,7 +36,7 @@ function NewGame() {
     canvas.height = width;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     myWorld = new World([width,height], nCreatures, creatureSpeed); 
-    UpdateCreatureSpeed($("#slider_creature_speed").slider("value")); 
+    myWorld.updateCreatureSpeed();
     myWorld.draw();
 }
 
@@ -54,22 +54,6 @@ function StopCreatures() {
     isRunning = false;
 }
 
-function UpdateCreatureSpeed(val) {
-    var valNum = parseFloat(val);
-    
-    if (valNum > myWorld.dims[0] * 0.3) {
-        // Limit the creature speed to 30% of the board width
-        valNum = myWorld.dims[0] * 0.3;
-        var speedInput = document.getElementById("creature_speed");
-        creature_speed.value = valNum + "";
-        setError("Cannot set speed above 30% of board width");
-    } else {
-        setError("");
-    }
-
-    myWorld.updateCreatureSpeed(valNum);
-}
-
 function setError(str){
     var err = document.getElementById("error_label");
     err.innerText = str;
@@ -77,6 +61,7 @@ function setError(str){
 
 function UpdateCreatureNumbers(val) {
     myWorld.updateCreatureNumbers(parseFloat(val));
+    myWorld.updateCreatureSpeed();
 }
 
 function UpdateCuriosity(val) {
@@ -85,6 +70,7 @@ function UpdateCuriosity(val) {
 
 function RandomMap() {
     myWorld.setRandomMap();
+    myWorld.updateCreatureSpeed();
 }
 
 $(function() {
@@ -101,10 +87,24 @@ $(function() {
 $(function() {
     $("#slider_creature_speed").slider({
         slide: function(event, ui){
-            UpdateCreatureSpeed(ui.value);
+            myWorld.speedMax = parseFloat(ui.value);
+            myWorld.updateCreatureSpeed();
         },
         min: 0,
         max: 10,
         value: 2
+    });
+});
+
+$(function() {
+    $("#slider_speed_dist").slider({
+        slide: function(event, ui){
+            myWorld.speedDist = parseFloat(ui.value);
+            myWorld.updateCreatureSpeed();
+        },
+        min: 0,
+        max: 1,
+        value: 1,
+        step: 0.01
     });
 });
