@@ -1,5 +1,6 @@
 // World methods and objects
 // ***********************************
+var myZoo = new Zoo();
 
 function World(dimensions, numCreatures, creatureSpeed, poly) {
     this.dims = dimensions;
@@ -53,7 +54,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     // Create creature positions by randomly selecting positions
     // on the dimensions of the world.
     for (var i = 0; i < numCreatures; i++){
-        this.seedCreature(new BlueCreature(this));
+        this.seedCreature(new myZoo.BlueCreature(this));
     }
 
     this.draw = function () {
@@ -96,7 +97,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         var oldNumber = this.creatures.length;
         if (oldNumber < newNumber){
             for (var i = 0; i < newNumber - oldNumber;i++){
-                this.seedCreature(new BlueCreature(this));
+                this.seedCreature(new myZoo.BlueCreature(this));
             }
         } else {
             for (var i = 0; i < oldNumber - newNumber; i++) {
@@ -145,7 +146,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
         this.creatures = [];
 
         for (var n = 0; n < nCreatures; n++) {
-            this.seedCreature(new BlueCreature(this));
+            this.seedCreature(new myZoo.BlueCreature(this));
         }
 
         this.draw();
