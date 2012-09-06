@@ -8,7 +8,7 @@ function World(dimensions, numCreatures, creatureSpeed, poly) {
     this.inWorldPoly = [];
     this.outWorldPoly = [];
     this.speedMax = 10;
-    this.speedDist = 5;
+    this.speedDist = 1;
 
     var canvas = document.getElementById("mycanvas");
     var ctx = canvas.getContext("2d");
