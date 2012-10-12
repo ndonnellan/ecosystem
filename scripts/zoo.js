@@ -149,8 +149,8 @@ function Zoo (){
 
     }
 
-    self.BlueCreature.prototype = new Creature();
-    self.BlueCreature.prototype.constructor = BlueCreature;
+    self.BlueCreature.prototype = new self.Creature();
+    self.BlueCreature.prototype.constructor = self.BlueCreature;
 
     self.BlueCreature.prototype.getRandomHeading = function(heading) {
         // The Blue creature's random heading function is weighted
